@@ -1,24 +1,20 @@
 import tkinter as tk
-import tkinter.ttk as ttk
+from tkinter import ttk
 from tkinter import messagebox
 import mysql.connector
 
 # --- Global style config ---
-COLORS = {
-    "bg": "#fefefe",
+COLORS = {"bg": "#fefefe",
     "btn_bg": "#0078D7",
     "btn_fg": "white",
     "btn_active": "#005A9E",
-    "text": "#333"
-}
+    "text": "#333"}
 
-FONTS = {
-    "title": ("Helvetica", 20, "bold"),
+FONTS = {"title": ("Helvetica", 20, "bold"),
     "subtitle": ("Helvetica", 18, "bold"),
     "big": ("Helvetica", 16),
     "normal": ("Helvetica", 14),
-    "msg": ("Helvetica", 13)
-}
+    "msg": ("Helvetica", 13)}
 
 BTN_STYLE = {
     "bg": COLORS["btn_bg"],
@@ -34,9 +30,9 @@ try:
         host="localhost",
         user="root",
         password="root4505",
-        database="ProjectC"
-    )
+        database="ProjectC")
     cursor = conn.cursor()
+
 except mysql.connector.Error as err:
     print("Error connecting to DB:", err)
     exit()
@@ -51,7 +47,7 @@ def login_window():
     root.geometry("420x320")
     root.config(bg=COLORS["bg"])
 
-    tk.Label(root, text="Welcome to ProjectC", font=FONTS["title"], bg=COLORS["bg"], fg=COLORS["text"]).pack(pady=(18, 12))
+    tk.Label(root, text="Welcome to Chat Interface", font=FONTS["title"], bg=COLORS["bg"], fg=COLORS["text"]).pack(pady=(18, 12))
 
     tk.Label(root, text="Username", font=FONTS["big"], bg=COLORS["bg"]).pack(pady=(10, 4))
     entry_user = tk.Entry(root, font=FONTS["big"], width=25, relief="solid", bd=1)
@@ -65,15 +61,15 @@ def login_window():
         u = entry_user.get().strip()
         p = entry_pass.get().strip()
         if not u or not p:
-            messagebox.showwarning("Oops", "Enter username and password")
+            messagebox.showwarning("Error", "Enter username and password")
             return
         cursor.execute("SELECT U_name FROM users WHERE U_name=%s", (u,))
         if cursor.fetchone():
-            messagebox.showerror("Oops", "Username already exists")
+            messagebox.showerror("Error", "Username already exists")
             return
         cursor.execute("INSERT INTO users (U_name, password) VALUES (%s, %s)", (u, p))
         conn.commit()
-        messagebox.showinfo("Nice", "Registered — you can log in now")
+        messagebox.showinfo("Success", "Registered — you can log in now")
 
     def try_login():
         u = entry_user.get().strip()
@@ -93,6 +89,10 @@ def login_window():
     tk.Button(root, text="Login", command=try_login, **BTN_STYLE).pack(fill='x', padx=80, pady=6)
 
     root.mainloop()
+
+def back(root,username):
+    root.destroy()
+    menu_window(username)
 
 def menu_window(username):
     root = tk.Tk()
@@ -120,7 +120,7 @@ def inbox_window(username):
     root = tk.Tk()
     root.config(bg=COLORS["bg"])
     root.title(f"Inbox - {username}")
-    root.geometry("780x540")
+    root.geometry("1000x750")
 
     columns = ("SENDER", "SNIPPET", "STAMP")
     tree = ttk.Treeview(root, columns=columns, show="headings", height=20)
@@ -162,6 +162,9 @@ def inbox_window(username):
 
     tree.bind('<Double-Button-1>', lambda event: full_open())
 
+    tk.Button(root,text = 'Back', command= lambda: back(root,username), **BTN_STYLE).pack(pady=10,side = tk.RIGHT)
+    root.mainloop()
+
     root.mainloop()
 
 def compose_window(username):
@@ -191,7 +194,7 @@ def compose_window(username):
         cursor.execute("INSERT INTO CHATLOG (SENDER, RECEIVER, CONTENT, STAMP) VALUES (%s, %s, %s, NOW())",
                        (username, r, c))
         conn.commit()
-        messagebox.showinfo("Sent", "Message sent!")
+        messagebox.showinfo("Success", "Message sent!")
         root.destroy()
         menu_window(username)
 

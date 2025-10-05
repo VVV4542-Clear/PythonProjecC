@@ -27,9 +27,9 @@ BTN_STYLE = {
 
 try:
     conn = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="root4505",
+        host="192.168.1.43",
+        user="remoteuser",
+        password="rules",
         database="ProjectC")
     cursor = conn.cursor()
 
